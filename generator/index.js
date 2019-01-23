@@ -1,6 +1,3 @@
-const fs = require('fs')
-let file
-
 module.exports = (api, options) => {
 
   if (options.uikit) {
@@ -15,41 +12,21 @@ module.exports = (api, options) => {
       }
     })
 
-    api.render('./template', options)
-
-    // Modify main.js
-    try {
-      const tsPath = api.resolve('src/main.ts')
-      const jsPath = api.resolve('src/main.js')
-
-      const tsExists = fs.existsSync(tsPath)
-      const jsExists = fs.existsSync(jsPath)
-
-      if (!tsExists && !jsExists) {
-        throw new Error('No entry found')
-      }
-
-      file = tsExists ? 'src/main.ts' : 'src/main.js'
-      api.injectImports(file, `import UIkit from 'uikit'`)
-      api.injectImports(file, `import '@/assets/styles/styles.scss'`)
-      if (options.uikitIcons) {
-        api.injectImports(file, `import Icons from 'uikit/dist/js/uikit-icons'`)
-      }
-    } catch (e) {
-      api.exitLog(`Your main file couldn't be modified.`, 'warn')
+    api.injectImports(api.entryFile, `import UIkit from 'uikit'`)
+    api.injectImports(api.entryFile, `import '@/assets/styles/styles.scss'`)
+    if (options.uikitIcons) {
+      api.injectImports(api.entryFile, `import Icons from 'uikit/dist/js/uikit-icons'`)
     }
 
-    api.onCreateComplete(() => {
+    api.render('./template', options)
 
-    let content = fs.readFileSync(file, { encoding: 'utf8' })
-      console.log('PRE-REPLACE:', file, '\n\n', content, '\n\n')
-
+    api.postProcessFiles(files => {
+      let content = files.hasOwnProperty(api.entryFile) ? files[api.entryFile] : ''
       content = content.replace(/\n\n/, `\n\nwindow.UIkit = UIkit\n\n`)
       if (options.uikitIcons) {
         content = content.replace(/\n\n/, `\n\nUIkit.use(Icons)\n`)
       }
-      console.log('POST-REPLACE:', '\n\n', content, '\n\n')
-      fs.writeFileSync(file, content, { encoding: 'utf8' })
+      files[api.entryFile] = content
     })
 
   } else {
