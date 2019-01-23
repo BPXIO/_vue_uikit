@@ -24,15 +24,20 @@ module.exports = (api, options) => {
   
     api.render('./template', options)
   
-    api.onCreateComplete(() => {
+    api.postProcessFiles(() => {
+      console.log('postProcessFiles', arguments, options, api.entryFile)
       if (options.uikitIcons) {
+        console.log('options.uikitIcons')
         let content = fs.readFileSync(api.entryFile, { encoding: 'utf8' })
         content = content.replace(/\n\n/, `\n\nUIkit.use(Icons)\nwindow.UIkit = UIkit\n\n`)
         fs.writeFileSync(api.entryFile, content, { encoding: 'utf8' })
+        console.log(content)
       } else {
+        console.log('!options.uikitIcons')
         let content = fs.readFileSync(api.entryFile, { encoding: 'utf8' })
         content = content.replace(/\n\n/, `\n\nwindow.UIkit = UIkit\n\n`)
         fs.writeFileSync(api.entryFile, content, { encoding: 'utf8' })
+        console.log(content)
       }
     })
   
