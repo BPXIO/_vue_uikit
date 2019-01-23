@@ -24,12 +24,19 @@ module.exports = (api, options) => {
 
     api.onCreateComplete(() => {
 
-      let content = api.generator.files[api.entryFile]
-      let file = api.generator.context + '/' + api.entryFile
-      console.log('PRE-REPLACE:', file, '\n\n', content, '\n\n')
-      if (!fs.existsSync(file)) {
-        throw new Error(`File is not writeable: ${file}`)
+      const file = api.resolve(api.entryFile)
+
+      try {
+        const fileExists = fs.existsSync(file)
+        if (!file && !fileExists) {
+          throw new Error('No entry found')
+        }
+      } catch (e) {
+        api.exitLog(`Your main file couldn’t be modified.`)
       }
+
+      let content = fs.readFileSync(file, { encoding: 'utf8' })
+      console.log('PRE-REPLACE:', file, '\n\n', content, '\n\n')
 
       content = content.replace(/\n\n/, `\n\nwindow.UIkit = UIkit\n\n`)
       if (options.uikitIcons) {
@@ -40,7 +47,7 @@ module.exports = (api, options) => {
     })
 
   } else {
-    console.info(`\n🚨 Remove this unused plugin with the command: yarn remove ${api.id}\n`)
+    api.exitLog(`🚨 Remove this unused plugin with the command: yarn remove ${api.id}\n`)
   }
 
 }
