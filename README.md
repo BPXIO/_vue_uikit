@@ -13,3 +13,8 @@ yarn global add @vue/cli
 yarn add --dev BPXIO/vue-cli-plugin-uikit 
 vue invoke uikit
 ```
+Or
+
+```sh
+vue add uikit
+```

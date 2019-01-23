@@ -1,8 +1,10 @@
 {
   "name": "vue-cli-plugin-uikit",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A Vue CLI plugin to add UIKit to a project",
   "main": "index.js",
   "author": "Tim Chambers <t.chambers@bpx.io>",
-  "private": true
+  "private": false,
+  "repository": "git@github.com:BPXIO/vue-cli-plugin-uikit.git",
+  "license": "MIT"
 }
