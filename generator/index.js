@@ -1,4 +1,5 @@
 const fs = require('fs')
+let file
 
 module.exports = (api, options) => {
 
@@ -14,28 +15,33 @@ module.exports = (api, options) => {
       }
     })
 
-    api.injectImports(api.entryFile, `import UIkit from 'uikit'`)
-    api.injectImports(api.entryFile, `import '@/assets/styles/styles.scss'`)
-    if (options.uikitIcons) {
-      api.injectImports(api.entryFile, `import Icons from 'uikit/dist/js/uikit-icons'`)
-    }
-
     api.render('./template', options)
+
+    // Modify main.js
+    try {
+      const tsPath = api.resolve('src/main.ts')
+      const jsPath = api.resolve('src/main.js')
+
+      const tsExists = fs.existsSync(tsPath)
+      const jsExists = fs.existsSync(jsPath)
+
+      if (!tsExists && !jsExists) {
+        throw new Error('No entry found')
+      }
+
+      file = tsExists ? 'src/main.ts' : 'src/main.js'
+      api.injectImports(file, `import UIkit from 'uikit'`)
+      api.injectImports(file, `import '@/assets/styles/styles.scss'`)
+      if (options.uikitIcons) {
+        api.injectImports(file, `import Icons from 'uikit/dist/js/uikit-icons'`)
+      }
+    } catch (e) {
+      api.exitLog(`Your main file couldn't be modified.`, 'warn')
+    }
 
     api.onCreateComplete(() => {
 
-      const file = api.resolve(api.entryFile)
-
-      try {
-        const fileExists = fs.existsSync(file)
-        if (!file && !fileExists) {
-          throw new Error('No entry found')
-        }
-      } catch (e) {
-        api.exitLog(`Your main file couldn’t be modified.`)
-      }
-
-      let content = fs.readFileSync(file, { encoding: 'utf8' })
+    let content = fs.readFileSync(file, { encoding: 'utf8' })
       console.log('PRE-REPLACE:', file, '\n\n', content, '\n\n')
 
       content = content.replace(/\n\n/, `\n\nwindow.UIkit = UIkit\n\n`)
@@ -47,7 +53,7 @@ module.exports = (api, options) => {
     })
 
   } else {
-    api.exitLog(`🚨 Remove this unused plugin with the command: yarn remove ${api.id}\n`)
+    api.exitLog(`🚨 Remove this unused plugin with the command: yarn remove ${api.id}\n`, 'info')
   }
 
 }
