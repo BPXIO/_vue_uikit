@@ -2,10 +2,12 @@ const fs = require('fs')
 
 module.exports = (api, options) => {
 
+  console.log('OPTIONS:', options)
+
   if (options.uikit) {
     api.extendPackage({
       dependencies: {
-        'uikit': '^3.0'
+        'uikit': '^3.0.2'
       },
       eslintConfig: {
         globals: {
