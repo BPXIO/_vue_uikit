@@ -10,7 +10,7 @@ yarn global add @vue/cli
 ## Add this plugin to an existing project
 
 ```sh
-yarn add --dev BPXIO/vue-cli-plugin-uikit 
+yarn add --dev vue-cli-plugin-uikit 
 vue invoke uikit
 ```
 Or
